@@ -52,7 +52,9 @@ fun SearchScreen(onSearch: (String) -> Unit) {
         ),
         keyboardActions = KeyboardActions(
             onDone = {
-                onSearch(searchText.value)
+                if (searchText.value.trim().isNotEmpty()) {
+                    onSearch(searchText.value.trim())
+                }
             }
         )
     )
