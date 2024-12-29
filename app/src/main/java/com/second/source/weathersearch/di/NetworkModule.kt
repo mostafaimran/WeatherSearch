@@ -19,7 +19,7 @@ class NetworkModule {
 
     @Singleton
     @Provides
-    fun provideOkHttpGoogleSpeechClient(): OkHttpClient {
+    fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY

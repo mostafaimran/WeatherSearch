@@ -1,28 +1,20 @@
 package com.second.source.weathersearch.ui.screen
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -39,7 +31,7 @@ import com.second.source.weathersearch.ui.viewmodel.WeatherSearchViewModel
 @Composable
 fun HomeScreen(
     viewModel: WeatherSearchViewModel,
-    onException: () -> Unit,
+    onException: (Exception) -> Unit,
     onPermissionDenied: () -> Unit
 ) {
     val uiState = viewModel.weatherScreenState
@@ -53,7 +45,11 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text(text = stringResource(R.string.app_name)) },
                 actions = {
-                    Row {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (uiState.isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                        }
+
                         if (currentLocation != null) {
                             IconButton(onClick = {
                                 viewModel.getWeatherByLocation(
@@ -91,7 +87,9 @@ fun HomeScreen(
             } else {
                 if (currentLocation != null) {
                     if (exception != null) {
-                        onException()
+                        onException(exception)
+
+                        viewModel.handledException()
                     } else {
                         weatherResponse?.let { response ->
                             Column(
@@ -99,6 +97,9 @@ fun HomeScreen(
                                     .fillMaxSize()
                                     .padding(16.dp)
                             ) {
+                                SearchScreen {
+                                    viewModel.getWeatherByLocationName(it)
+                                }
 
                                 WeatherScreen(
                                     cityName = response.name,
@@ -115,13 +116,9 @@ fun HomeScreen(
                                 currentLocation.latitude,
                                 currentLocation.longitude
                             )
-
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
                     }
                 } else {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-
                     LocalContext.current.getCurrentLocation { lat, long ->
                         viewModel.updateLocation(LatLng(lat, long))
                     }

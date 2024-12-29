@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -15,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.second.source.weathersearch.R
 
@@ -27,7 +30,6 @@ fun SearchScreen(onSearch: (String) -> Unit) {
         value = searchText.value,
         onValueChange = {
             searchText.value = it
-            onSearch(it)
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -44,7 +46,15 @@ fun SearchScreen(onSearch: (String) -> Unit) {
             )
         },
         shape = RoundedCornerShape(24.dp),
-        singleLine = true
+        singleLine = true,
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                onSearch(searchText.value)
+            }
+        )
     )
 
 }

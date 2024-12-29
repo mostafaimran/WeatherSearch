@@ -10,7 +10,7 @@ import com.second.source.weathersearch.ui.viewmodel.WeatherSearchViewModel
 @Composable
 fun AppNavigation(
     viewModel: WeatherSearchViewModel = hiltViewModel(),
-    onException: () -> Unit,
+    onException: (Exception) -> Unit,
     onPermissionDenied: () -> Unit
 ) {
     val navController = rememberNavController()

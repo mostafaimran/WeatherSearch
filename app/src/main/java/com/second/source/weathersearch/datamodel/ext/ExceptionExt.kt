@@ -13,7 +13,7 @@ fun Exception.convertNetworkSpecificException(): Exception {
     return when {
         isServerError() -> {
             if (this is HttpException)
-                HttpServerException(this.code())
+                HttpServerException()
             else
                 ServerException(this.toString())
         }

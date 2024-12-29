@@ -13,4 +13,10 @@ interface OpenWeatherAPI {
         @Query("appid") apiKey: String = BuildConfig.API_KEY
     ): WeatherResponse
 
+    @GET(ApiEndPoints.API_GET_WEATHER_DATA)
+    suspend fun getWeatherByLocationName(
+        @Query("q") name: String,
+        @Query("appid") apiKey: String = BuildConfig.API_KEY
+    ): WeatherResponse
+
 }
