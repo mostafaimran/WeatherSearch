@@ -10,15 +10,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class GetWeatherDataByLocationName @Inject constructor(
+class GetWeatherDataByCurrentLocation @Inject constructor(
     private val weatherSearchRepository: WeatherSearchRepository
-) : UseCase<String, Results<WeatherInformation>>() {
+) : UseCase<ParamGetWeatherByLocation, Results<WeatherInformation>>() {
 
-    override suspend fun execute(parameters: String): Results<WeatherInformation> =
+    override suspend fun execute(parameters: ParamGetWeatherByLocation): Results<WeatherInformation> =
         withContext(Dispatchers.IO) {
             try {
-                val response = weatherSearchRepository.fetchWeatherData(parameters)
-
+                val response = weatherSearchRepository.fetchWeatherData(
+                    parameters.latitude,
+                    parameters.longitude
+                )
                 val weatherInformation = WeatherInformation(
                     cityName = response.name,
                     temperature = response.main.temp,
@@ -28,9 +30,18 @@ class GetWeatherDataByLocationName @Inject constructor(
                     feelsLike = response.main.feelsLike,
                     humidity = response.main.humidity
                 )
+
+                // save to db
+                weatherSearchRepository.saveWeatherInformation(weatherInformation)
+
                 Success(weatherInformation)
             } catch (e: Exception) {
                 Error(e)
             }
         }
 }
+
+data class ParamGetWeatherByLocation(
+    val latitude: Double,
+    val longitude: Double
+)

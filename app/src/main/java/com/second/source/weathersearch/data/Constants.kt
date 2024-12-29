@@ -6,5 +6,4 @@ object Constants {
 
     const val KELVIN_CELSIUS_DIFF = 273.15
 
-    const val ZILA_LIST_ASSET_FILE = "zilaList.json"
 }

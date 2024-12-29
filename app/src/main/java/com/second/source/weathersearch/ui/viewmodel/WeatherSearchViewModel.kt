@@ -9,8 +9,9 @@ import com.second.source.weathersearch.core.base.Results
 import com.second.source.weathersearch.core.base.Success
 import com.second.source.weathersearch.coreandroid.BaseViewModel
 import com.second.source.weathersearch.coreandroid.util.ControlledRunner
-import com.second.source.weathersearch.datamodel.models.WeatherResponse
-import com.second.source.weathersearch.domain.GetWeatherDataByLocation
+import com.second.source.weathersearch.datamodel.models.WeatherInformation
+import com.second.source.weathersearch.domain.GetLocalWeatherData
+import com.second.source.weathersearch.domain.GetWeatherDataByCurrentLocation
 import com.second.source.weathersearch.domain.GetWeatherDataByLocationName
 import com.second.source.weathersearch.domain.ParamGetWeatherByLocation
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,14 +20,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeatherSearchViewModel @Inject constructor(
-    private val getWeatherDataByLocation: GetWeatherDataByLocation,
-    private val getWeatherDataByLocationName: GetWeatherDataByLocationName
+    private val getWeatherDataByCurrentLocation: GetWeatherDataByCurrentLocation,
+    private val getWeatherDataByLocationName: GetWeatherDataByLocationName,
+    private val getLocalWeatherData: GetLocalWeatherData
 ) : BaseViewModel() {
 
     var weatherScreenState by mutableStateOf(HomeWeatherScreenState())
         private set
 
-    private var controlledRunnerFetchRecords = ControlledRunner<Results<WeatherResponse>>()
+    private var controlledRunnerFetchRecords = ControlledRunner<Results<WeatherInformation>>()
 
     fun updateLocationPermissionGranted() {
         weatherScreenState = weatherScreenState.copy(locationPermissionRequired = false)
@@ -40,26 +42,37 @@ class WeatherSearchViewModel @Inject constructor(
         weatherScreenState = weatherScreenState.copy(exception = null)
     }
 
+    fun getLocalWeatherData() {
+        uiScope.launch {
+            val weatherInformation = getLocalWeatherData(Any())
+
+            weatherScreenState = weatherScreenState.copy(
+                weatherInformation = weatherInformation,
+                isLoading = false,
+            )
+        }
+    }
+
     fun getWeatherByLocation(latitude: Double, longitude: Double) {
         uiScope.launch {
             weatherScreenState = weatherScreenState.copy(isLoading = true)
 
             when (val results = controlledRunnerFetchRecords.cancelPreviousThenRun {
-                getWeatherDataByLocation(
+                getWeatherDataByCurrentLocation(
                     ParamGetWeatherByLocation(latitude, longitude)
                 )
             }) {
                 is Success -> {
                     weatherScreenState = weatherScreenState.copy(
-                        weatherResponse = results.data,
-                        isLoading = false
+                        weatherInformation = results.data,
+                        isLoading = false,
                     )
                 }
 
                 is Error -> {
                     weatherScreenState = weatherScreenState.copy(
                         isLoading = false,
-                        exception = results.exception
+                        exception = results.exception,
                     )
                 }
             }
@@ -75,7 +88,7 @@ class WeatherSearchViewModel @Inject constructor(
             }) {
                 is Success -> {
                     weatherScreenState = weatherScreenState.copy(
-                        weatherResponse = results.data,
+                        weatherInformation = results.data,
                         isLoading = false
                     )
                 }
@@ -92,9 +105,9 @@ class WeatherSearchViewModel @Inject constructor(
 }
 
 data class HomeWeatherScreenState(
-    val weatherResponse: WeatherResponse? = null,
+    val weatherInformation: WeatherInformation? = null,
     val isLoading: Boolean = false,
     val exception: Exception? = null,
     val currentLocation: LatLng? = null,
-    val locationPermissionRequired: Boolean = true
+    val locationPermissionRequired: Boolean = true,
 )

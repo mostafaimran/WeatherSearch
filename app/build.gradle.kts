@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt.android)
     id("kotlin-kapt")
+    id ("com.google.devtools.ksp")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
@@ -88,6 +89,10 @@ dependencies {
     implementation(libs.compose.runtime.livedata)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.coil.compose)
+
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp (libs.room.compiler)
 
     implementation(libs.maps)
     implementation(libs.maps.compose)

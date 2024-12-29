@@ -25,7 +25,9 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.LatLng
 import com.second.source.weathersearch.R
 import com.second.source.weathersearch.datamodel.ext.getCurrentLocation
+import com.second.source.weathersearch.datamodel.ext.hasInternet
 import com.second.source.weathersearch.ui.viewmodel.WeatherSearchViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +38,12 @@ fun HomeScreen(
 ) {
     val uiState = viewModel.weatherScreenState
     val requestLocationPermission = uiState.locationPermissionRequired
-    val weatherResponse = uiState.weatherResponse
+    val weatherInformation = uiState.weatherInformation
+
+    if (!LocalContext.current.hasInternet()) {
+        viewModel.getLocalWeatherData()
+    }
+
     val currentLocation = uiState.currentLocation
     val exception = uiState.exception
 
@@ -91,7 +98,7 @@ fun HomeScreen(
 
                         viewModel.handledException()
                     } else {
-                        weatherResponse?.let { response ->
+                        if (weatherInformation != null) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -102,16 +109,16 @@ fun HomeScreen(
                                 }
 
                                 WeatherScreen(
-                                    cityName = response.name,
-                                    temperature = response.main.temp,
-                                    description = response.weather.firstOrNull()?.description ?: "",
-                                    weatherIcon = response.weather.firstOrNull()?.icon ?: "",
-                                    pressure = response.main.pressure,
-                                    feelsLike = response.main.feelsLike,
-                                    humidity = response.main.humidity
+                                    cityName = weatherInformation.cityName,
+                                    temperature = weatherInformation.temperature,
+                                    description = weatherInformation.description,
+                                    weatherIcon = weatherInformation.weatherIcon ?: "",
+                                    pressure = weatherInformation.pressure,
+                                    feelsLike = weatherInformation.feelsLike,
+                                    humidity = weatherInformation.humidity
                                 )
                             }
-                        } ?: run {
+                        } else {
                             viewModel.getWeatherByLocation(
                                 currentLocation.latitude,
                                 currentLocation.longitude
