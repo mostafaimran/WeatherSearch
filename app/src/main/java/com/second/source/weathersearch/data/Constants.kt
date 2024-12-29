@@ -1,0 +1,10 @@
+package com.second.source.weathersearch.data
+
+object Constants {
+    const val SERVER_DATE_FORMAT: String = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+    const val SERVER_TIME_ONLY_FORMAT: String = "hh:mm aa"
+
+    const val KELVIN_CELSIUS_DIFF = 273.15
+
+    const val ZILA_LIST_ASSET_FILE = "zilaList.json"
+}
